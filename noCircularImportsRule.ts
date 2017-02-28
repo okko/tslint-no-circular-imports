@@ -1,36 +1,37 @@
 import { basename } from 'path'
 import * as ts from 'typescript'
-import * as Lint from 'tslint/lib/lint'
+import { IRuleMetadata, Rules, RuleFailure, RuleWalker, Utils } from 'tslint'
 
-export class Rule extends Lint.Rules.AbstractRule {
+export class Rule extends Rules.AbstractRule {
   static FAILURE_STRING = 'Circular import detected'
 
-  static metadata: Lint.IRuleMetadata = {
+  static metadata: IRuleMetadata = {
     ruleName: 'no-circular-imports',
     description: 'Disallows circular imports.',
-    rationale: Lint.Utils.dedent`
+    rationale: Utils.dedent`
         Circular dependencies cause hard-to-catch runtime exceptions.`,
     optionsDescription: 'Not configurable.',
     options: null,
     optionExamples: ['true'],
-    type: 'functionality'
+    type: 'functionality',
+    typescriptOnly: false
   }
 
-  apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
+  apply(sourceFile: ts.SourceFile): RuleFailure[] {
     return this.applyWithWalker(new NoCircularImportsWalker(sourceFile, this.getOptions()))
   }
 }
 
 const imports = new Map<string, Set<string>>()
 
-class NoCircularImportsWalker extends Lint.RuleWalker {
+class NoCircularImportsWalker extends RuleWalker {
 
   visitImportDeclaration(node: ts.ImportDeclaration) {
 
-    const parent = node.parent as any
+    const parent = node.parent as ts.SourceFile
     const thisModuleName = parent.fileName
     const importPath = (node.moduleSpecifier as any).text
-    const importModule = parent.resolvedModules[importPath]
+    const importModule = (parent as any).resolvedModules.get(importPath)
     const importCanonicalName = importModule.resolvedFileName as string
 
     // add to import graph

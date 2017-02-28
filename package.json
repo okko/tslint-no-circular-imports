@@ -1,15 +1,19 @@
 {
   "name": "tslint-no-circular-imports",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "TSLint plugin to detect and warn about circular imports",
   "main": "tslint-no-circular-imports.json",
   "scripts": {
-    "build": "npm run build-sources && npm test",
-    "build-sources": "tsc -p tsconfig.json",
-    "build-tests": "tsc -p tsconfig.test.json",
-    "watch": "tsc -p tsconfig.json -w & tsc -p tsconfig.test.json -w",
-    "test": "npm run build-tests && node test/test.js",
-    "prepublish": "npm run build"
+    "build": "npm run clean && npm run build:sources && npm run build:tests",
+    "build:sources": "tsc -p tsconfig.json",
+    "build:tests": "tsc -p tsconfig.test.json",
+    "clean": "rm *.d.ts; rm *.map; rm*.js; rm test/*.d.ts; rm test/*.map; rm test/*.js; exit 0;",
+    "watch": "npm run watch:sources & npm run watch:tests",
+    "watch:sources": "tsc -p tsconfig.json -w & ",
+    "watch:tests": "tsc -p tsconfig.test.json -w",
+    "test": "node test/test.js",
+    "pretest": "npm run build",
+    "prepublish": "npm test"
   },
   "author": "Boris Cherny <boris@performancejs.com> (http://performancejs.com/)",
   "license": "MIT",
@@ -18,8 +22,8 @@
     "url": "git+https://github.com/bcherny/tslint-no-circular-imports.git"
   },
   "dependencies": {
-    "@types/node": "^6.0.47",
-    "tslint": "^3.15.1",
-    "typescript": "^2.0.9"
+    "@types/node": "^7.0.5",
+    "tslint": "^4.5.0",
+    "typescript": "^2.2.1"
   }
 }
